@@ -34,7 +34,7 @@ class LdapMicrosoft {
     private function connectToServer(string $ldapServer): void {
         $this->ldapConnection = ldap_connect($ldapServer);
         if ($this->ldapConnection === false) {
-            throw new LdapException('Impossible de se connecter au serveur ' . $ldapServer);
+            throw new LdapException("Impossible de se connecter au serveur $ldapServer.");
         }
         $this->connected = true;
     }
@@ -50,7 +50,7 @@ class LdapMicrosoft {
         ldap_set_option($this->ldapConnection, LDAP_OPT_TIMEOUT, 5);
 
         if (ldap_bind($this->ldapConnection, $ldapUser, $ldapPassword) !== true) {
-            throw new LdapException('Impossible de se connecter au serveur LDAP avec l\'utilisateur ' . $ldapUser);
+            throw new LdapException("Impossible de se connecter au serveur LDAP avec l'utilisateur $ldapUser.");
         }
     }    
 
@@ -65,12 +65,12 @@ class LdapMicrosoft {
         $result = $this->getSearchResult("(&(mail=$userEmail))");
         if ($result !== false) {
             $userRawData = $this->getUserDataFromResult($result);
-            if ($userRawData !== false) {
+            if ($userRawData !== null) {
                 $userData = $this->parseUserRawData($userRawData);
                 return $this->transformUserData($userData);
             }
         }
-        return false;
+        return null;
     }
 
     private function getSearchResult($searchFilter) {
@@ -83,7 +83,7 @@ class LdapMicrosoft {
             $userRawData = $entries[0];
             return $userRawData;
         }
-        return false;
+        return null;
     }
 
     private function parseUserRawData(array $userRawData): MicrosoftUser {
@@ -117,15 +117,57 @@ class LdapMicrosoft {
     }
 }
 
-try {
-    $ldap = new LdapMicrosoft($ldapBaseDn, $dataToTransform);
-    $ldap->connect($ldapServer, $ldapUser, $ldapPassword);
-    $user = $ldap->searchByEmail('sylvain.dangin@creps-idf.fr');
-    var_dump($user);
-    $user = $ldap->searchByEmail('veronique.cotteaux@creps-idf.fr');
-    var_dump($user);
-} catch(LdapException $exception) {
-    echo $exception->getMessage();
-} finally {
-    $ldap->disconnect();
+function getUser($mail): ?MicrosoftUser {
+    global $ldapBaseDn;
+    global $dataToTransform;
+    global $ldapServer;
+    global $ldapUser;
+    global $ldapPassword;
+
+    $result = null;
+    try {
+        $ldap = new LdapMicrosoft($ldapBaseDn, $dataToTransform);
+        $ldap->connect($ldapServer, $ldapUser, $ldapPassword);
+        $result = $ldap->searchByEmail($mail);
+    } catch(LdapException $exception) {
+        echo $exception->getMessage();
+    } finally {
+        $ldap->disconnect();
+    }
+    return $result;
 }
+
+function isValidMailAddress($mail) {
+    return filter_var($mail, FILTER_VALIDATE_EMAIL);
+}
+
+function showError($msg) {
+    echo '<!doctype html><html><body><p style="width: 100%; text-align: center">' . $msg . '</p><a href="/">Revenir au formulaire</a></body></html>';
+}
+
+function showSignature($mail) {
+    $mail = $_GET['mail'];
+    if (isValidMailAddress($mail)) {
+        global $userData;
+        $userData = getUser($mail);
+        if ($userData !== null) {
+            // Le fichier template se charge de l'affichage de la signature
+            require_once('template.php');
+        } else {
+            showError("L'adresse email $mail n'a pas été trouvée.");
+        }
+    } else {
+        showError("L'adresse email $mail n'est pas valide ou n'existe pas.");
+    }
+}
+
+function showForm() {
+    require_once('form.php');
+}
+
+if (isset($_GET['mail'])) {
+    showSignature($_GET['mail']);
+} else {
+    showForm();
+}
+

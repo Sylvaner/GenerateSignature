@@ -2,6 +2,18 @@
 
 Génère des signatures à partir des données contenues dans l'Active Directory
 
+# Champs de l'utilisateur utilisables
+* email
+* displayName
+* title
+* phone
+* mobile
+* department
+* address
+* city
+* zipcode
+
+
 # Configuration
 
 ```
@@ -15,22 +27,28 @@ Génère des signatures à partir des données contenues dans l'Active Directory
         'ACC' => 'Accueil'
       ]
   ];
+  $template = '
+    <p class="displayName">#displayName#</p>
+    <p>#address#</p>
+    <p>#city#</p>
+  ';
+  $cssTemplate = '
+  #signature p { font-family: sans-serif; }
+  p.displayName { font-weight: bold; }
+  ';
 ```
 
 ## $dataToTransform
 
 Cette variable est un tableau associatif nécessaire pour renommer certaines parties des données de l'utilisateur.
 Dans l'exemple ci-dessus, les personnes du service IT (attribut department) auront pour service 'Service Informatique'.
-Ceci peut s'appliquer à l'ensemble des champs de l'utilisateur :
+Ceci peut s'appliquer à l'ensemble des champs de l'utilisateur.
 
-```
-* email
-* displayName
-* title
-* phone
-* mobile
-* department
-* address
-* city
-* zipcode
-```
+## $template
+
+Code HTML de la signature, chacun des champs doit être entouré du sympbole #
+
+## $cssTemplate
+
+Code CSS qui sera appliqué à la signature.
+Le container de la signature à l'identifiant __signature__
