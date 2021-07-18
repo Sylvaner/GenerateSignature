@@ -1,6 +1,6 @@
-# generate-signature
+# GenerateSignature
 
-Génère des signatures à partir des données contenues dans l'Active Directory
+Génère des signatures pour Outlook à partir des données contenues dans l'Active Directory en fonction de l'utilisateur
 
 # Champs de l'utilisateur utilisables
 * email
@@ -16,7 +16,7 @@ Génère des signatures à partir des données contenues dans l'Active Directory
 
 # Configuration
 
-```
+```php
   $ldapUser = 'utilisateur@domain.tld';
   $ldapPassword = 'user_password';
   $ldapServer = '192.168.1.1';
@@ -52,3 +52,9 @@ Code HTML de la signature, chacun des champs doit être entouré du sympbole #
 
 Code CSS qui sera appliqué à la signature.
 Le container de la signature à l'identifiant __signature__
+
+# Lancement
+
+```
+docker compose up -d
+```
