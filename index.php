@@ -117,7 +117,7 @@ class LdapMicrosoft {
     }
 }
 
-function getUser($mail): ?MicrosoftUser {
+function getUser($email): ?MicrosoftUser {
     global $ldapBaseDn;
     global $dataToTransform;
     global $ldapServer;
@@ -128,7 +128,7 @@ function getUser($mail): ?MicrosoftUser {
     try {
         $ldap = new LdapMicrosoft($ldapBaseDn, $dataToTransform);
         $ldap->connect($ldapServer, $ldapUser, $ldapPassword);
-        $result = $ldap->searchByEmail($mail);
+        $result = $ldap->searchByEmail($email);
     } catch(LdapException $exception) {
         echo $exception->getMessage();
     } finally {
@@ -137,27 +137,26 @@ function getUser($mail): ?MicrosoftUser {
     return $result;
 }
 
-function isValidMailAddress($mail) {
-    return filter_var($mail, FILTER_VALIDATE_EMAIL);
+function isValidMailAddress($email) {
+    return filter_var($email, FILTER_VALIDATE_EMAIL);
 }
 
 function showError($msg) {
     echo '<!doctype html><html><body><p style="width: 100%; text-align: center">' . $msg . '</p><a href="/">Revenir au formulaire</a></body></html>';
 }
 
-function showSignature($mail) {
-    $mail = $_GET['mail'];
-    if (isValidMailAddress($mail)) {
+function showSignature($email) {
+    if (isValidMailAddress($email)) {
         global $userData;
-        $userData = getUser($mail);
+        $userData = getUser($email);
         if ($userData !== null) {
             // Le fichier template se charge de l'affichage de la signature
             require_once('template.php');
         } else {
-            showError("L'adresse email $mail n'a pas été trouvée.");
+            showError("L'adresse email $email n'a pas été trouvée.");
         }
     } else {
-        showError("L'adresse email $mail n'est pas valide ou n'existe pas.");
+        showError("L'adresse email $email n'est pas valide.");
     }
 }
 
@@ -165,8 +164,8 @@ function showForm() {
     require_once('form.php');
 }
 
-if (isset($_GET['mail'])) {
-    showSignature($_GET['mail']);
+if (isset($_GET['email'])) {
+    showSignature($_GET['email']);
 } else {
     showForm();
 }
