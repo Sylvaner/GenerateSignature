@@ -3,6 +3,9 @@
     $ldapPassword = 'user_password';
     $ldapServer = '192.168.1.1';
     $ldapBaseDn = 'OU=Users,DC=domain,DC=ld';
+    $defaultAddress = '';
+    $defaultCity = '';
+    $defaultZipcode = '';
     $dataToTransform = [
         'department' => [
           'IT' => 'Service Informatique',

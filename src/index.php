@@ -1,6 +1,9 @@
 <?php
 require ('conf.php');
 
+/**
+ * Classe de données d'un utilisateur
+ */
 class MicrosoftUser {
     public string $email = '';
     public string $displayName = '';
@@ -15,6 +18,9 @@ class MicrosoftUser {
 
 class LdapException extends Exception {}
 
+/**
+ * Classe de connexion à la base de données LDAP Microsoft
+ */
 class LdapMicrosoft {
     private $ldapConnection;
     private bool $connected = false;
@@ -86,17 +92,38 @@ class LdapMicrosoft {
         return null;
     }
 
-    private function parseUserRawData(array $userRawData): MicrosoftUser {
+    private function createUserWithDefaultValues(): MicrosoftUser {
+        global $defaultAddress;
+        global $defaultCity;
+        global $defaultZipcode;
+
         $user = new MicrosoftUser();
+        $user->city = $defaultCity;
+        $user->address = $defaultAddress;
+        $user->zipcode = $defaultZipcode;
+        return $user;
+    }
+
+    private function parseUserRawData(array $userRawData): MicrosoftUser {
+        $user = $this->createUserWithDefaultValues();
         $user->email = strtolower($this->extractData($userRawData, 'userprincipalname'));
         $user->displayName = $this->extractData($userRawData, 'displayname');
         $user->title = $this->extractData($userRawData, 'title');
         $user->phone = $this->extractData($userRawData, 'telephonenumber');
         $user->mobile = $this->extractData($userRawData, 'mobile');
         $user->department = $this->extractData($userRawData, 'department');
-        $user->address = $this->extractData($userRawData, 'streetaddress');
-        $user->city = $this->extractData($userRawData, 'l');
-        $user->zipcode = $this->extractData($userRawData, 'postalcode');
+        $address = $this->extractData($userRawData, 'streetaddress');
+        if ($address !== '') {
+            $user->address = str_replace("\n", '<br/>', $address);
+        }
+        $city = $this->extractData($userRawData, 'l');
+        if ($city !== '') {
+            $user->city = $city;
+        }
+        $zipcode = $this->extractData($userRawData, 'postalcode');
+        if ($zipcode !== '') {
+            $user->zipcode = $zipcode;
+        }
         return $user;
     }
     

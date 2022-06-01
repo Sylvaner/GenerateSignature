@@ -5,7 +5,12 @@
         $userDataList = get_object_vars($userData);
         // Remplace les données trouvées dans le template
         foreach ($userDataList as $userDataKey => $userDataValue) {
-            $template = str_replace("#$userDataKey#", $userDataValue, $template);
+            if ($userDataValue !== '') {
+                $template = str_replace("#$userDataKey#", $userDataValue, $template);
+                $template = preg_replace('/#(end)?if ' . $userDataKey . '#/', '', $template);
+            } else {
+                $template = preg_replace('/#if ' . $userDataKey . '#.*#endif ' . $userDataKey . '#/', '', $template);
+            }
         }
 ?><!DOCTYPE html>
 <html lang="fr">

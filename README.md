@@ -1,6 +1,6 @@
 # GenerateSignature
 
-Génère des signatures pour Outlook à partir des données contenues dans l'Active Directory en fonction de l'utilisateur
+Génère des signatures au format HTML à partir des données contenues dans l'Active Directory en fonction de l'utilisateur.
 
 # Champs de l'utilisateur utilisables
 * email
@@ -31,6 +31,7 @@ Génère des signatures pour Outlook à partir des données contenues dans l'Act
     <p class="displayName">#displayName#</p>
     <p>#address#</p>
     <p>#city#</p>
+    #if phone#<p>Tél. : #phone#</p>#endif phone#
   ';
   $cssTemplate = '
   #signature p { font-family: sans-serif; }
@@ -46,7 +47,9 @@ Ceci peut s'appliquer à l'ensemble des champs de l'utilisateur.
 
 ## $template
 
-Code HTML de la signature, chacun des champs doit être entouré du sympbole #
+Code HTML de la signature, chacun des champs doit être entouré du sympbole __#__.
+
+Il est possible de ne pas afficher un bloc si une information manque (Téléphone dans l'exemple ci-dessus). Pour cela, il faut entourer le bloc par #if NOM_DE_L_ATTRIBUT# Bloc de données avec l'attribut #endif NOM_DE_L_ATTRIBUT#.
 
 ## $cssTemplate
 
